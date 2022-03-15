@@ -173,10 +173,20 @@ class Project:
         self.tracks = [x.create_track(self.frame_rate) for x in self.inputs]
 
     def mix(self, gains: Optional[list[float]] = None) -> np.ndarray:
-        """Mix tracks."""
+        """
+        Mix all project tracks into a single 2-channel air pressure timeline.
+
+        :param gains:
+            list of gains for each track; by default, gains are not changed
+        :return:
+            array of shape (n_channels, n_samples)
+        """
         gains = gains or [1.0 for _ in self.tracks]
         output = np.array([[], []], dtype=np.float64)
-        # TODO: `input.start_time`
-        for gain, track in zip(gains, self.tracks):
-            output = sum_two_sounds(output, gain * track)
+        for track, input_params, gain in zip(self.tracks, self.inputs, gains):
+            processed_track = np.hstack((
+                np.zeros((track.shape[0], int(round(self.frame_rate * input_params.start_time)))),
+                gain * track
+            ))
+            output = sum_two_sounds(output, processed_track)
         return output
