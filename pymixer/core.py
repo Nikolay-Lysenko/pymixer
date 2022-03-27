@@ -110,7 +110,7 @@ class SinethesizerMidiInput(AbstractInput):
         self.path_to_midi_file = path_to_midi_file
         self.path_to_presets = path_to_presets
         self.track_name_to_instrument = track_name_to_instrument
-        self.track_name_to_effects = track_name_to_effects
+        self.track_name_to_effects = track_name_to_effects or {}
         self.start_time = start_time
         self.peak_amplitude = peak_amplitude
 
@@ -127,7 +127,7 @@ class SinethesizerMidiInput(AbstractInput):
             'peak_amplitude': self.peak_amplitude,
             'instruments_registry': create_instruments_registry(self.path_to_presets),
             'midi': {
-                'track_name_to_instruments': self.track_name_to_instrument,
+                'track_name_to_instrument': self.track_name_to_instrument,
                 'track_name_to_effects': self.track_name_to_effects,
             }
         }

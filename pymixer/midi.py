@@ -90,16 +90,26 @@ def merge_midi_objects(
                 output_instrument.control_changes.append(output_control_change)
         current_time += object_end_time - object_start_time + caesura_in_sec
 
+    # A fictive note that prolongs output MIDI file.
+    # This event is recognized by `sinethesizer`.
     trailing_silence_note = pretty_midi.Note(
         start=current_time,
         end=current_time + trailing_silence_in_sec,
         velocity=0,
         pitch=1
     )
+    # A fictive control change that prolongs output MIDI file.
+    # This event is recognized by `fluidsynth`.
+    trailing_silence_control_change = pretty_midi.ControlChange(
+        number=7,
+        value=0,
+        time=current_time + trailing_silence_in_sec
+    )
     merged_midi_object = pretty_midi.PrettyMIDI()
     for name, instrument in sorted(instruments.items(), key=lambda x: x[0]):
         instrument.notes.sort(key=lambda x: (x.start, x.pitch))
         instrument.notes.append(trailing_silence_note)
+        instrument.control_changes.append(trailing_silence_control_change)
         merged_midi_object.instruments.append(instrument)
     return merged_midi_object
 
