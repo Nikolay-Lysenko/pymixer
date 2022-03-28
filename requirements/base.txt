@@ -1,0 +1,5 @@
+-c constraints.txt
+numpy==1.22.3
+pretty-midi==0.2.9
+scipy==1.8.0
+sinethesizer==0.6.1
