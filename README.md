@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/pymixer.svg)](https://badge.fury.io/py/pymixer)
+
 # PyMixer
 
 ## Overview
