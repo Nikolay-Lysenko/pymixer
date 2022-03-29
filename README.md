@@ -4,7 +4,7 @@
 
 ## Overview
 
-It is a library designed to mix input MIDI and/or WAV files into output WAV file. The library can convert MIDI inputs to WAV with [[Sine]thesizer](https://github.com/Nikolay-Lysenko/sinethesizer) and [FluidSynth](https://github.com/FluidSynth/fluidsynth).
+It is a library for mixing input MIDI and/or WAV files into output WAV files. The library can convert MIDI inputs to WAV with [[Sine]thesizer](https://github.com/Nikolay-Lysenko/sinethesizer) and [FluidSynth](https://github.com/FluidSynth/fluidsynth).
 
 To study utilities from the library, one can read their docstring from the source code. These docstrings are informative enough.
 
