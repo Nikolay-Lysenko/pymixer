@@ -11,13 +11,13 @@ from setuptools import setup, find_packages
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
-description = 'Collection of utilities for working with MIDI and WAV files.'
+description = 'A library for mixing input MIDI and/or WAV files into output WAV files.'
 with open(os.path.join(current_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='pymixer',
-    version='0.0.0',
+    version='0.1.0',
     description=description,
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -32,11 +32,13 @@ setup(
     packages=find_packages(exclude=["tests"]),
     python_requires='>=3.9',
     install_requires=[
+        'numpy',
         'pretty-midi',
+        'scipy',
         'sinethesizer>=0.6,<0.7',
     ],
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Artistic Software',
         'License :: OSI Approved :: MIT License',
