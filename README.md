@@ -23,4 +23,4 @@ To install a stable version, run:
 pip install pymixer
 ```
 
-Above command installs `sinethesizer` Python package, but it does not install `fluidsynth` (which is not a Python package). Please install it according to instructions from its [official website](https://www.fluidsynth.org/).
+Above command also installs `sinethesizer` Python package as a dependency, but it does not install `fluidsynth` (which is not a Python package). Please install it according to instructions from its [official website](https://www.fluidsynth.org/).
