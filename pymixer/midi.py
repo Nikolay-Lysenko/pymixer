@@ -8,6 +8,7 @@ Author: Nikolay Lysenko
 import os
 import random
 import string
+from copy import copy
 from typing import Optional
 
 import pretty_midi
@@ -139,3 +140,40 @@ def split_midi_file_by_instruments(path_to_midi_file: str, output_dir: str) -> N
             )
         output_file_name = f"{file_name_without_extension}_{instrument_name}.mid"
         split_midi_object.write(os.path.join(output_dir, output_file_name))
+
+
+def choirify_midi_file(
+        path_to_input_midi_file: str,
+        path_to_output_midi_file: str,
+        program_to_programs: dict[int, list[int]]
+) -> None:
+    """
+    Replace each instrument with its copies that differ only in programs.
+
+    In particular, this function is useful for preparing pipe organ MIDI files for playing
+    with soundfonts where programs correspond to single stops and so multiple programs are needed
+    for each of the tracks.
+
+    :param path_to_input_midi_file:
+        path to MIDI file to be choirified
+    :param path_to_output_midi_file:
+        path to output file
+    :param program_to_programs:
+        mapping from original program to multiple programs that replace it;
+        if an instrument has a program that is absent in this mapping, this instrument is skipped
+    :return:
+        None
+    """
+    midi_object = pretty_midi.PrettyMIDI(path_to_input_midi_file)
+    new_instruments = []
+    for instrument in midi_object.instruments:
+        programs = program_to_programs.get(instrument.program)
+        if programs is None:
+            continue
+        for program in programs:
+            new_instrument = copy(instrument)
+            new_instrument.program = program
+            new_instrument.name = f'{instrument.name}_{program}'
+            new_instruments.append(new_instrument)
+    midi_object.instruments = new_instruments
+    midi_object.write(path_to_output_midi_file)
