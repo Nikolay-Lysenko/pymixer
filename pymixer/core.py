@@ -74,6 +74,12 @@ class FluidsynthMidiInput(AbstractInput):
         self.fluidsynth_chorus = fluidsynth_chorus
         self.fluidsynth_reverb = fluidsynth_reverb
 
+    @staticmethod
+    def _convert_raw_pcm_to_wav(input_path: str, output_path: str, frame_rate: int) -> None:
+        """Convert raw PCM file to a true WAV file by adding header to it."""
+        command = f"ffmpeg -f s16le -ar {frame_rate} -ac 1 -i {input_path} {output_path}"
+        subprocess.run(command.split())
+
     def create_track(self, frame_rate: int) -> np.ndarray:
         """
         Create air pressure timeline with two channels.
@@ -90,7 +96,15 @@ class FluidsynthMidiInput(AbstractInput):
                 f"{self.path_to_soundfont} {self.path_to_midi_file}"
             )
             subprocess.run(command.split())
-            timeline = read_wav_file(tmp_file.name, frame_rate)
+            try:
+                timeline = read_wav_file(tmp_file.name, frame_rate)
+            # Some installations of FluidSynth produce raw RCM files instead of WAV files.
+            except ValueError as e:
+                if "not understood. Only 'RIFF' and 'RIFX' supported" not in str(e):
+                    raise e
+                with tempfile.NamedTemporaryFile(suffix='.wav') as tmp_wav_file:
+                    self._convert_raw_pcm_to_wav(tmp_file.name, tmp_wav_file.name, frame_rate)
+                    timeline = read_wav_file(tmp_wav_file.name, frame_rate)
         return timeline
 
 
