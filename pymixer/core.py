@@ -6,6 +6,7 @@ Author: Nikolay Lysenko
 
 
 import subprocess
+import sys
 import tempfile
 from abc import ABC, abstractmethod
 from typing import Optional, Union
@@ -77,7 +78,10 @@ class FluidsynthMidiInput(AbstractInput):
     @staticmethod
     def _convert_raw_pcm_to_wav(input_path: str, output_path: str, frame_rate: int) -> None:
         """Convert raw PCM file to a true WAV file by adding header to it."""
-        command = f"ffmpeg -f s16le -ar {frame_rate} -ac 1 -i {input_path} {output_path}"
+        byte_order = 'le' if sys.byteorder == 'little' else 'be'
+        command = (
+            f"ffmpeg -f float32{byte_order} -ar {frame_rate} -ac 2 -i {input_path} {output_path}"
+        )
         subprocess.run(command.split())
 
     def create_track(self, frame_rate: int) -> np.ndarray:
@@ -92,13 +96,14 @@ class FluidsynthMidiInput(AbstractInput):
                 f"fluidsynth -r {frame_rate} -g {self.fluidsynth_gain} "
                 f"{'-C0 ' if not self.fluidsynth_chorus else ''}"
                 f"{'-R0 ' if not self.fluidsynth_reverb else ''}"
+                "-O float "
                 f"-F {tmp_file.name} "
                 f"{self.path_to_soundfont} {self.path_to_midi_file}"
             )
             subprocess.run(command.split())
             try:
                 timeline = read_wav_file(tmp_file.name, frame_rate)
-            # Some installations of FluidSynth produce raw RCM files instead of WAV files.
+            # Some installations of FluidSynth produce raw PCM files instead of WAV files.
             except ValueError as e:
                 if "not understood. Only 'RIFF' and 'RIFX' supported" not in str(e):
                     raise e
