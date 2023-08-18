@@ -17,7 +17,7 @@ with open(os.path.join(current_dir, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='pymixer',
-    version='0.1.1',
+    version='0.2',
     description=description,
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -30,7 +30,7 @@ setup(
         'mixing',
     ],
     packages=find_packages(exclude=["tests"]),
-    python_requires='>=3.9',
+    python_requires='>=3.10',
     install_requires=[
         'numpy',
         'pretty-midi',
