@@ -13,8 +13,8 @@ import numpy as np
 import pretty_midi
 from sinethesizer.utils.misc import sum_two_sounds
 
-from pymixer.midi import merge_midi_objects, replace_programs
-from pymixer.sound_makers import SoundMaker
+from pymixer.midi import fix_fluidsynth_last_note_termination, merge_midi_objects, replace_programs
+from pymixer.sound_makers import FluidsynthSoundMaker, SoundMaker
 from pymixer.wav import read_wav_file
 
 
@@ -123,9 +123,10 @@ class Project:
         stubs = self._make_midi_stubs()
         for stub in stubs:
             midi_object = merge_midi_objects(stub.midi_objects, stub.offsets[:-1])
-            if hasattr(stub.sound_maker, "instrument_name_to_program"):
+            if isinstance(stub.sound_maker, FluidsynthSoundMaker):
                 instrument_name_to_program = stub.sound_maker.instrument_name_to_program
                 midi_object = replace_programs(midi_object, instrument_name_to_program)
+                midi_object = fix_fluidsynth_last_note_termination(midi_object)
             midi_object.write(stub.sound_maker.path_to_midi_file)
             timeline = stub.sound_maker.make_sound(self.frame_rate)
             track = Track(timeline, stub.start_time)

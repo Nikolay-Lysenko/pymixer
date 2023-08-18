@@ -114,3 +114,34 @@ def replace_programs(
             new_instruments.append(instrument)
     output_midi_object.instruments = new_instruments
     return output_midi_object
+
+
+def fix_fluidsynth_last_note_termination(
+        midi_object: pretty_midi.PrettyMIDI,
+        trailing_silence: float = 0.5
+) -> pretty_midi.PrettyMIDI:
+    """
+    Prevent abrupt termination of sound due to the bug in versions of FluidSynth prior to 2.3.1.
+
+    :param midi_object:
+        MIDI object to be made compatible with older versions of FluidSynth
+    :param trailing_silence:
+        duration of trailing silence (in seconds); adding this silence is a workaround to the issue
+    :return:
+        MIDI object with extra trailing silence
+    """
+    total_duration = max(
+        note.end
+        for instrument in midi_object.instruments
+        for note in instrument.notes
+    )
+    # A fictive control change that prolongs output MIDI file.
+    # Unlike notes of zero velocity, this event affects duration of `fluidsynth` output.
+    trailing_silence_control_change = pretty_midi.ControlChange(
+        number=7,
+        value=0,
+        time=total_duration + trailing_silence
+    )
+    for instrument in midi_object.instruments:
+        instrument.control_changes.append(trailing_silence_control_change)
+    return midi_object
