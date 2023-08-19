@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
-description = 'A library for mixing input MIDI and/or WAV files into output WAV files.'
+description = 'A library for mixing input MIDI and/or WAV files to output WAV files.'
 with open(os.path.join(current_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
