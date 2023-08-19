@@ -94,7 +94,7 @@ class Project:
         return results
 
     def _make_midi_stubs(self) -> list[MidiStub]:
-        """Make stubs."""
+        """Make MIDI stubs."""
         current_time = 0
         stubs = [MidiStub(spec.sound_maker) for spec in self.midi_tracks_specs]
         offsets = self._get_offsets()
@@ -142,10 +142,11 @@ class Project:
             self,
             gains: Optional[list[float]] = None,
             opening_silence: float = 0.0,
-            trailing_silence: float = 0.0
+            trailing_silence: float = 0.0,
+            grouped_track_indices: Optional[list[list[int]]] = None
     ) -> np.ndarray:
         """
-        Mix all project tracks into a single 2-channel air pressure timeline.
+        Mix individual tracks to one or more 2-channel air pressure timelines.
 
         :param gains:
             list of gains for each track; by default, gains are not changed
@@ -153,25 +154,42 @@ class Project:
             duration of opening silence (in seconds)
         :param trailing_silence:
             duration of trailing silence (in seconds)
+        :param grouped_track_indices:
+            groups of original tracks to be mixed together to a single output track;
+            by default, all tracks form one group;
+            if this argument is passed and a track is missed there, the track is ignored
         :return:
-            array of shape (n_channels, n_samples)
+            array of shape (n_channels, n_samples) where `n_channels = 2 * n_groups`
         """
-        n_channels = 2
+        n_channels_per_track = 2
+
         gains = gains or [1.0 for _ in self.tracks]
         if len(gains) != len(self.tracks):
             raise ValueError(
-                f"Length of `gains` is {len(gains)}, but it must be equal to {len(self.tracks)}"
+                f"Length of `gains` is {len(gains)}, but it must be equal to {len(self.tracks)}."
             )
-        output = np.array([[], []], dtype=np.float64)
-        for track, gain in zip(self.tracks, gains):
-            processed_timeline = np.hstack((
-                np.zeros((n_channels, int(round(self.frame_rate * track.start_time)))),
-                gain * track.timeline
+        grouped_track_indices = grouped_track_indices or [list(range(len(self.tracks)))]
+        flat_indices = [index for group in grouped_track_indices for index in group]
+        if any(index != int(round(index)) for index in flat_indices):
+            raise ValueError("Only integer values are allowed in `grouped_track_indices`.")
+        if min(flat_indices) < -len(self.tracks) or max(flat_indices) >= len(self.tracks):
+            raise ValueError("Out-of-range indices found in `grouped_track_indices`.")
+
+        mixed_timelines = []
+        for group_track_indices in grouped_track_indices:
+            group_data = [(self.tracks[i], gains[i]) for i in group_track_indices]
+            mixed_timeline = np.array([[], []], dtype=np.float64)
+            for track, gain in group_data:
+                current_timeline = np.hstack((
+                    np.zeros((n_channels_per_track, int(round(self.frame_rate * track.start_time)))),
+                    gain * track.timeline
+                ))
+                mixed_timeline = sum_two_sounds(mixed_timeline, current_timeline)
+            mixed_timeline = np.hstack((
+                np.zeros((n_channels_per_track, int(round(self.frame_rate * opening_silence)))),
+                mixed_timeline,
+                np.zeros((n_channels_per_track, int(round(self.frame_rate * trailing_silence)))),
             ))
-            output = sum_two_sounds(output, processed_timeline)
-        output = np.hstack((
-            np.zeros((n_channels, int(round(self.frame_rate * opening_silence)))),
-            output,
-            np.zeros((n_channels, int(round(self.frame_rate * trailing_silence)))),
-        ))
-        return output
+            mixed_timelines.append(mixed_timeline)
+        result = np.vstack(mixed_timelines)
+        return result
