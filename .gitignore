@@ -148,3 +148,8 @@ nohup.out
 *.out
 *.pdf
 *.gz
+
+# Audio files
+*.mid
+*.midi
+*.wav
