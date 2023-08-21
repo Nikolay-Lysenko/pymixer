@@ -82,7 +82,7 @@ class Project:
                 f"Number of offsets is equal to {len(self.offsets)}, "
                 f"but {n_midi_files - 1} offsets are expected."
             )
-        offsets = [x for x in self.offsets] + [0]  # Extra offset for the last file.
+        offsets = [x for x in self.offsets] + [0.0]  # Extra offset for the last file.
         return offsets
 
     def _find_dependent_tracks(self, file_name: str) -> list[int]:
@@ -109,11 +109,12 @@ class Project:
                     stub.start_time = current_time
                 stub.midi_objects.append(midi_object)
                 stub.offsets.append(offset)
-            duration = max(
-                note.end
-                for instrument in midi_object.instruments
-                for note in instrument.notes
-            )
+            notes = [
+                note
+                for instrument in midi_object.instruments for note in instrument.notes
+                if note.velocity > 0
+            ]
+            duration = max(note.end for note in notes) - min(note.start for note in notes)
             current_time += duration + offset
         return stubs
 
