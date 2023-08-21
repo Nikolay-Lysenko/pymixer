@@ -191,5 +191,14 @@ class Project:
                 np.zeros((n_channels_per_track, int(round(self.frame_rate * trailing_silence)))),
             ))
             mixed_timelines.append(mixed_timeline)
-        result = np.vstack(mixed_timelines)
+
+        max_length = max(mixed_timeline.shape[1] for mixed_timeline in mixed_timelines)
+        aligned_timelines = []
+        for mixed_timeline in mixed_timelines:
+            aligned_timeline = np.hstack((
+                mixed_timeline,
+                np.zeros((n_channels_per_track, max_length - mixed_timeline.shape[1]))
+            ))
+            aligned_timelines.append(aligned_timeline)
+        result = np.vstack(aligned_timelines)
         return result
