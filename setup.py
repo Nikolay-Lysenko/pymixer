@@ -17,7 +17,7 @@ with open(os.path.join(current_dir, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='pymixer',
-    version='0.2',
+    version='0.2.0',
     description=description,
     long_description=long_description,
     long_description_content_type='text/markdown',
