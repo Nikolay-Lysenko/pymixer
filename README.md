@@ -6,9 +6,9 @@
 
 It is a library for mixing input MIDI and/or WAV files to output WAV files. To convert MIDI to WAV, [[Sine]thesizer](https://github.com/Nikolay-Lysenko/sinethesizer) and [FluidSynth](https://github.com/FluidSynth/fluidsynth) are used.
 
-To start with, there is a [tutorial](https://github.com/Nikolay-Lysenko/pymixer/blob/master/docs/tutorial.ipynb) where this library is used for generating polyphonic audio from MIDI representation of a demo fugue.
+Although modern DAWs have a lot more features, there is a strong reason to consider this minimalistic tool. A mixing project becomes more reproducible and more comprehensible if all steps are listed sequentially in a text file instead of being scattered over multiple GUIs (probably, with drop-down menus or nested screens).
 
-To get more information, one can read docstrings from the source code. These docstrings are informative enough.
+To start with, there is a [tutorial](https://github.com/Nikolay-Lysenko/pymixer/blob/master/docs/tutorial.ipynb) where this library is used for generating polyphonic audio from MIDI representation of a demo fugue. If something is not covered by the tutorial, try to read docstrings from the source code. These docstrings are informative enough.
 
 ## Installation
 
