@@ -8,7 +8,7 @@ It is a library for mixing input MIDI and/or WAV files to output WAV files. To c
 
 To start with, there is a [tutorial](https://github.com/Nikolay-Lysenko/pymixer/blob/master/docs/tutorial.ipynb) where this library is used for generating polyphonic audio from MIDI representation of a demo fugue.
 
-To get more information, one can read docstring from the source code. These docstrings are informative enough.
+To get more information, one can read docstrings from the source code. These docstrings are informative enough.
 
 ## Installation
 
